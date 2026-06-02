@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude para Professores</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy2: #111827;
+    --teal: #0d9488;
+    --teal2: #14b8a6;
+    --tealLt: #ccfbf1;
+    --orange: #f97316;
+    --orangeLt: #fed7aa;
+    --blue: #1d4ed8;
+    --blueLt: #dbeafe;
+    --white: #ffffff;
+    --off: #f8fafc;
+    --gray1: #64748b;
+    --gray2: #94a3b8;
+    --gray3: #e2e8f0;
+    --text: #1e293b;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  .sidenav {
+    position: fixed;
+    left: 0; top: 0;
+    width: 260px;
+    height: 100vh;
+    background: rgba(10,15,30,0.97);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 0 24px;
+    backdrop-filter: blur(20px);
+    transition: transform .3s ease;
+  }
+
+  .sidenav-logo {
+    padding: 0 28px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 20px;
+  }
+
+  .sidenav-logo span {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 2px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+
+  .sidenav-logo h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--white);
+    margin-top: 10px;
+    line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .sidenav-logo p {
+    font-size: 11px;
+    color: var(--gray2);
+    margin-top: 4px;
+  }
+
+  .nav-list {
+    list-style: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 12px;
+  }
+
+  .nav-list::-webkit-scrollbar { width: 4px; }
+  .nav-list::-webkit-scrollbar-track { background: transparent; }
+  .nav-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  .nav-item a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--gray2);
+    text-decoration: none;
+    transition: all .2s;
+    font-weight: 400;
+    letter-spacing: 0.2px;
+  }
+
+  .nav-item a .nav-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--gray2);
+    flex-shrink: 0;
+    transition: all .2s;
+  }
+
+  .nav-item a:hover {
+    color: var(--white);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .nav-item a:hover .nav-num {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .nav-item a.active {
+    color: var(--teal2);
+    background: rgba(13,148,136,0.12);
+  }
+
+  .nav-item a.active .nav-num {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .nav-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.05);
+    margin: 8px 16px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 260px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 80px 80px 80px 80px;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(13,148,136,0.18) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 90% 80%, rgba(29,78,216,0.15) 0%, transparent 60%),
+                var(--navy);
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  .hero-content { position: relative; z-index: 2; max-width: 700px; }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(13,148,136,0.15);
+    border: 1px solid rgba(13,148,136,0.3);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--teal2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--teal2);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.0;
+    font-weight: 900;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--teal2);
+  }
+
+  .hero-sub {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 3vw, 34px);
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 28px;
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  .hero-desc {
+    font-size: 16px;
+    color: var(--gray2);
+    line-height: 1.7;
+    max-width: 520px;
+    margin-bottom: 44px;
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--teal);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all .2s;
+    letter-spacing: 0.3px;
+  }
+
+  .hero-cta:hover {
+    background: var(--teal2);
+    transform: translateY(-1px);
+    box-shadow: 0 12px 40px rgba(13,148,136,0.3);
+  }
+
+  .hero-cta svg { transition: transform .2s; }
+  .hero-cta:hover svg { transform: translateX(3px); }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--gray2);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(6px); }
+  }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 100px 80px;
+    position: relative;
+  }
+
+  .section:nth-child(even) {
+    background: rgba(255,255,255,0.015);
+  }
+
+  .section-inner { max-width: 820px; }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--teal2);
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+
+  .section-tag::before {
+    content: '';
+    width: 24px; height: 2px;
+    background: var(--teal2);
+  }
+
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--white);
+    margin-bottom: 20px;
+  }
+
+  .section h2 em {
+    font-style: italic;
+    color: var(--teal2);
+  }
+
+  .section-lead {
+    font-size: 17px;
+    color: var(--gray2);
+    line-height: 1.7;
+    margin-bottom: 48px;
+    max-width: 620px;
+  }
+
+  /* ── CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all .25s;
+  }
+
+  .card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(13,148,136,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+
+  .card-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .card p {
+    font-size: 13px;
+    color: var(--gray2);
+    line-height: 1.6;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .plan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .plan-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 32px;
+    transition: all .25s;
+  }
+
+  .plan-card.featured {
+    background: rgba(13,148,136,0.1);
+    border-color: rgba(13,148,136,0.35);
+  }
+
+  .plan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  }
+
+  .plan-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .plan-price {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--teal2);
+    margin-bottom: 4px;
+  }
+
+  .plan-price span { font-size: 14px; color: var(--gray2); }
+
+  .plan-note { font-size: 12px; color: var(--gray1); margin-bottom: 28px; }
+
+  .plan-features { list-style: none; }
+
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 13.5px;
+    color: var(--gray2);
+    line-height: 1.5;
+  }
+
+  .plan-features li:last-child { border-bottom: none; }
+
+  .plan-features li .check { color: var(--teal2); flex-shrink: 0; margin-top: 2px; }
+  .plan-features li .cross { color: #ef4444; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── PRODUCT CARDS ── */
+  .product-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .product-card {
+    border-radius: 20px;
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s;
+  }
+
+  .product-card:hover { transform: translateY(-4px); }
+
+  .product-card.blue { background: linear-gradient(135deg, rgba(29,78,216,0.3), rgba(29,78,216,0.1)); border: 1px solid rgba(29,78,216,0.3); }
+  .product-card.teal { background: linear-gradient(135deg, rgba(13,148,136,0.3), rgba(13,148,136,0.1)); border: 1px solid rgba(13,148,136,0.3); }
+  .product-card.orange { background: linear-gradient(135deg, rgba(249,115,22,0.3), rgba(249,115,22,0.1)); border: 1px solid rgba(249,115,22,0.3); }
+
+  .product-emoji { font-size: 36px; margin-bottom: 16px; display: block; }
+
+  .product-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .product-for {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray2);
+    background: rgba(255,255,255,0.07);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  .product-card ul {
+    list-style: none;
+  }
+
+  .product-card ul li {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .product-card ul li::before { content: '›'; color: var(--teal2); font-size: 16px; }
+
+  /* ── CONNECTOR PILLS ── */
+  .connector-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 36px;
+  }
+
+  .connector-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: var(--gray2);
+    transition: all .2s;
+    cursor: default;
+  }
+
+  .connector-pill:hover {
+    background: rgba(13,148,136,0.12);
+    border-color: rgba(13,148,136,0.3);
+    color: var(--white);
+  }
+
+  .connector-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── PLATFORM CARDS ── */
+  .platform-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 40px;
+  }
+
+  .platform-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all .25s;
+  }
+
+  .platform-card:hover {
+    border-color: rgba(13,148,136,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  }
+
+  .platform-header {
+    padding: 24px 24px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .platform-emoji { font-size: 28px; }
+
+  .platform-header h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .platform-badge {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .platform-badge.green { background: rgba(13,148,136,0.2); color: var(--teal2); }
+  .platform-badge.blue { background: rgba(29,78,216,0.2); color: #60a5fa; }
+  .platform-badge.orange { background: rgba(249,115,22,0.2); color: #fb923c; }
+
+  .platform-body { padding: 20px 24px; }
+
+  .platform-body ul { list-style: none; }
+
+  .platform-body li {
+    font-size: 13px;
+    color: var(--gray2);
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .platform-body li::before { content: '✓'; color: var(--teal2); font-size: 12px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── TEACHER TIPS ── */
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .tip-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all .25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tip-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .tip-card.t1::before { background: var(--teal); }
+  .tip-card.t2::before { background: var(--blue); }
+  .tip-card.t3::before { background: var(--orange); }
+  .tip-card.t4::before { background: #8b5cf6; }
+  .tip-card.t5::before { background: var(--teal); }
+  .tip-card.t6::before { background: var(--blue); }
+
+  .tip-card:hover {
+    background: rgba(255,255,255,0.055);
+    transform: translateX(3px);
+  }
+
+  .tip-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tip-card p {
+    font-size: 13px;
+    color: var(--gray2);
+    line-height: 1.65;
+  }
+
+  .tip-example {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--teal2);
+    font-style: italic;
+    line-height: 1.5;
+    border-left: 2px solid var(--teal);
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(13,148,136,0.15), rgba(13,148,136,0.05));
+    border: 1px solid rgba(13,148,136,0.25);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-top: 40px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .highlight-box .icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+
+  .highlight-box p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.65;
+  }
+
+  .highlight-box strong { color: var(--teal2); }
+
+  /* ── PROSE TEXT ── */
+  .prose {
+    font-size: 15.5px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.8;
+    max-width: 720px;
+  }
+
+  .prose + .prose { margin-top: 18px; }
+
+  .prose strong { color: var(--white); font-weight: 600; }
+
+  /* ── DIFFERENTIALS LIST ── */
+  .diff-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .diff-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    transition: all .2s;
+  }
+
+  .diff-item:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(13,148,136,0.2);
+  }
+
+  .diff-emoji { font-size: 24px; flex-shrink: 0; }
+
+  .diff-item h4 { font-size: 14px; font-weight: 600; color: var(--white); margin-bottom: 4px; }
+  .diff-item p { font-size: 13px; color: var(--gray2); line-height: 1.55; }
+
+  /* ── FOOTER ── */
+  .footer {
+    padding: 60px 80px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+  }
+
+  .footer-inner { max-width: 480px; margin: 0 auto; }
+
+  .footer h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 12px;
+  }
+
+  .footer p {
+    font-size: 14px;
+    color: var(--gray2);
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .footer-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--teal);
+    color: #fff;
+    padding: 13px 26px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all .2s;
+  }
+
+  .footer-btn:hover {
+    background: var(--teal2);
+    box-shadow: 0 10px 30px rgba(13,148,136,0.3);
+  }
+
+  .footer-copy {
+    margin-top: 40px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.2);
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--teal2));
+    width: 0%;
+    z-index: 200;
+    transition: width .1s;
+  }
+
+  /* ── HAMBURGER ── */
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 16px; left: 16px;
+    z-index: 300;
+    background: rgba(10,15,30,0.9);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    width: 40px; height: 40px;
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    backdrop-filter: blur(10px);
+  }
+
+  .hamburger span {
+    display: block;
+    width: 18px; height: 2px;
+    background: var(--white);
+    border-radius: 2px;
+    transition: all .3s;
+  }
+
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 90;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidenav { transform: translateX(-100%); }
+    .sidenav.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .hamburger { display: flex; }
+    .overlay.show { display: block; }
+    .hero { padding: 100px 32px 80px; }
+    .section { padding: 70px 32px; }
+    .plan-grid { grid-template-columns: 1fr; }
+    .product-cards { grid-template-columns: 1fr; }
+    .platform-cards { grid-template-columns: 1fr; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .diff-list { grid-template-columns: 1fr; }
+    .examples-cats { flex-direction: column; }
+    .footer { padding: 60px 32px; }
+  }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 36px; }
+    .hero-sub { font-size: 18px; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── EXAMPLES ── */
+  .examples-cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 36px;
+    margin-top: 8px;
+  }
+  .cat-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--gray2);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all .2s;
+    font-weight: 400;
+  }
+  .cat-btn:hover, .cat-btn.active {
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+  }
+  .examples-group { display: none; }
+  .examples-group.active { display: block; }
+  .example-list { display: flex; flex-direction: column; gap: 12px; }
+  .example-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .example-item:hover { border-color: rgba(13,148,136,0.25); }
+  .example-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .example-emoji { font-size: 20px; flex-shrink: 0; }
+  .example-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--white);
+    flex: 1;
+    transition: color .2s;
+  }
+  .example-header:hover .example-title { color: var(--teal2); }
+  .example-chevron {
+    flex-shrink: 0;
+    color: var(--gray2);
+    transition: transform .25s;
+    font-size: 14px;
+  }
+  .example-item.open .example-chevron { transform: rotate(180deg); }
+  .example-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .example-item.open .example-body { display: block; }
+  .example-context {
+    font-size: 13px;
+    color: var(--gray2);
+    line-height: 1.65;
+    margin: 14px 0;
+  }
+  .example-prompt-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--teal2);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .example-prompt {
+    background: rgba(13,148,136,0.08);
+    border: 1px solid rgba(13,148,136,0.2);
+    border-radius: 10px;
+    padding: 14px 50px 14px 16px;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.65;
+    font-style: italic;
+    position: relative;
+  }
+  .example-prompt + .example-prompt { margin-top: 8px; }
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 11px;
+    color: var(--gray2);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .2s;
+  }
+  .copy-btn:hover { background: var(--teal); color: #fff; }
+  .copy-btn.copied { background: var(--teal); color: #fff; }
+  .example-tip {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: rgba(249,115,22,0.07);
+    border-left: 2px solid var(--orange);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.6;
+  }
+  .example-tip strong { color: var(--orange); }
+
+  /* ── FADE IN ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .6s ease, transform .6s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidenav" id="sidenav">
+  <div class="sidenav-logo">
+    <span>claude.ai</span>
+    <h2>Guia Completo para Professores</h2>
+    <p>Anthropic · 2026</p>
+  </div>
+  <ul class="nav-list">
+    <li class="nav-item"><a href="#hero" class="active"><span class="nav-num">✦</span> Início</a></li>
+    <li class="nav-divider"></li>
+    <li class="nav-item"><a href="#o-que-e"><span class="nav-num">01</span> O que é o Claude</a></li>
+    <li class="nav-item"><a href="#funcoes"><span class="nav-num">02</span> O que ele faz</a></li>
+    <li class="nav-item"><a href="#diferenciais"><span class="nav-num">03</span> Diferenciais</a></li>
+    <li class="nav-divider"></li>
+    <li class="nav-item"><a href="#planos"><span class="nav-num">04</span> Planos e preços</a></li>
+    <li class="nav-item"><a href="#produtos"><span class="nav-num">05</span> Chat · Code · Cowork</a></li>
+    <li class="nav-divider"></li>
+    <li class="nav-item"><a href="#conectores"><span class="nav-num">06</span> Conectores</a></li>
+    <li class="nav-item"><a href="#skills"><span class="nav-num">07</span> Skills</a></li>
+    <li class="nav-item"><a href="#design"><span class="nav-num">08</span> Claude Design</a></li>
+    <li class="nav-divider"></li>
+    <li class="nav-item"><a href="#plataformas"><span class="nav-num">09</span> Web · Desktop · Mobile</a></li>
+    <li class="nav-item"><a href="#projetos"><span class="nav-num">10</span> Projetos e Memória</a></li>
+    <li class="nav-item"><a href="#professores"><span class="nav-num">11</span> Dicas para professores</a></li>
+    <li class="nav-item"><a href="#exemplos"><span class="nav-num">12</span> Exemplos de uso</a></li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<button class="hamburger" id="hamburger" aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HERO -->
+  <section id="hero" class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Guia para educadores</div>
+      <h1>Domine<br><em>o Claude</em></h1>
+      <p class="hero-sub">do básico ao avançado</p>
+      <p class="hero-desc">Tudo que você precisa saber sobre a IA da Anthropic — funções, planos, produtos e como usar na sala de aula.</p>
+      <a href="#o-que-e" class="hero-cta">
+        Começar a ler
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+    <div class="hero-scroll">
+      <svg width="16" height="20" viewBox="0 0 16 20" fill="none"><rect x="6" y="1" width="4" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M8 13v5M5 15l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      scroll
+    </div>
+  </section>
+
+  <!-- 01 O QUE É -->
+  <section id="o-que-e" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 01</div>
+      <h2>O que é <em>o Claude?</em></h2>
+      <p class="section-lead">Uma inteligência artificial criada pela Anthropic — empresa fundada em 2021 por ex-pesquisadores da OpenAI — com três pilares fundamentais.</p>
+
+      <p class="prose">Diferente de outros assistentes de IA, o Claude foi construído desde o início com foco em ser <strong>útil, honesto e seguro</strong>. Isso significa que ele foi treinado para admitir quando não sabe algo, recusar pedidos prejudiciais e evitar respostas enganosas — características especialmente importantes para quem trabalha com educação.</p>
+
+      <p class="prose">Hoje, o Claude é considerado um dos modelos de linguagem mais avançados do mundo, competindo diretamente com o ChatGPT (OpenAI) e o Gemini (Google). Você acessa em qualquer plataforma pelo endereço <strong>claude.ai</strong>.</p>
+
+      <div class="cards-grid" style="margin-top:36px;">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">🛡️</div>
+          <h3>Seguro</h3>
+          <p>Treinado para ser honesto, recusar pedidos prejudiciais e não inventar respostas quando não sabe.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">🧠</div>
+          <h3>Inteligente</h3>
+          <p>Modelos de última geração (Opus, Sonnet, Haiku) com capacidade de raciocínio profundo.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">🎯</div>
+          <h3>Útil de verdade</h3>
+          <p>Projetado para ajudar em tarefas reais — não apenas responder perguntas, mas executar trabalho.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 FUNÇÕES -->
+  <section id="funcoes" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 02</div>
+      <h2>O que o Claude <em>consegue fazer?</em></h2>
+      <p class="section-lead">O Claude não é só um "respondedor de perguntas". Ele é um assistente completo capaz de executar tarefas complexas em texto, código, análise e criação.</p>
+
+      <div class="cards-grid">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">✍️</div>
+          <h3>Escrita e edição</h3>
+          <p>E-mails, textos, redações, relatórios, roteiros, posts. Edita, melhora, reformula e corrige gramática.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">📄</div>
+          <h3>Resumo de documentos</h3>
+          <p>Envia PDFs, artigos e planilhas. Ele resume, identifica pontos principais e responde perguntas sobre o conteúdo.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">🌐</div>
+          <h3>Pesquisa na web</h3>
+          <p>No plano pago, acessa a internet em tempo real para buscar informações atualizadas.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(139,92,246,0.15)">🖼️</div>
+          <h3>Análise de imagens</h3>
+          <p>Analisa fotos, gráficos, capturas de tela e documentos. Descreve, transcreve e interpreta dados visuais.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">💻</div>
+          <h3>Programação</h3>
+          <p>Cria, depura e explica código em qualquer linguagem. Python, JavaScript, HTML, SQL e muito mais.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">📊</div>
+          <h3>Análise de dados</h3>
+          <p>Lê planilhas, calcula médias, identifica padrões e interpreta resultados. Ideal para notas e avaliações.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">🌍</div>
+          <h3>Tradução e adaptação</h3>
+          <p>Traduz textos e adapta o nível de linguagem para qualquer público — do ensino fundamental ao avançado.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(139,92,246,0.15)">🎨</div>
+          <h3>Geração de imagens</h3>
+          <p>No plano pago, gera imagens originais a partir de descrições textuais para materiais visuais.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">🧮</div>
+          <h3>Matemática e lógica</h3>
+          <p>Resolve problemas passo a passo, explica conceitos, cria exercícios e verifica contas.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">📅</div>
+          <h3>Planejamento</h3>
+          <p>Cria cronogramas, planos de projeto, checklists e planos de aula estruturados.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">🔬</div>
+          <h3>Deep Research</h3>
+          <p>Pesquisa aprofundada em dezenas de fontes, cruzando informações e entregando relatórios detalhados.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(139,92,246,0.15)">🤖</div>
+          <h3>Automação de tarefas</h3>
+          <p>Conecta apps, preenche formulários, organiza arquivos e executa fluxos repetitivos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 DIFERENCIAIS -->
+  <section id="diferenciais" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 03</div>
+      <h2>Por que o Claude <em>se destaca?</em></h2>
+      <p class="section-lead">Alguns pontos fazem o Claude se destacar para quem usa no dia a dia, especialmente em contextos educacionais.</p>
+
+      <div class="diff-list">
+        <div class="diff-item">
+          <div class="diff-emoji">📚</div>
+          <div>
+            <h4>Janela de contexto enorme</h4>
+            <p>Lê até ~200 mil palavras de uma vez — um livro inteiro ou uma pasta de PDFs. Sem "esquecer" o começo enquanto lê o final.</p>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-emoji">🎯</div>
+          <div>
+            <h4>Respostas longas e completas</h4>
+            <p>Não corta o texto no meio. Entrega análises completas quando necessário, sem truncar o raciocínio.</p>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-emoji">🛡️</div>
+          <div>
+            <h4>Honestidade como padrão</h4>
+            <p>Treinado para dizer "não sei" em vez de inventar. Avisa quando uma informação pode estar desatualizada.</p>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-emoji">✍️</div>
+          <div>
+            <h4>Qualidade em português</h4>
+            <p>Escreve com naturalidade e precisão, adaptando registro formal e informal com facilidade.</p>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-emoji">🔗</div>
+          <div>
+            <h4>Projetos com memória</h4>
+            <p>Lembra do contexto entre conversas dentro de um Projeto. Ideal para professores que usam o Claude com regularidade.</p>
+          </div>
+        </div>
+        <div class="diff-item">
+          <div class="diff-emoji">🖼️</div>
+          <div>
+            <h4>Visão avançada</h4>
+            <p>Analisa imagens, gráficos e documentos escaneados com precisão — tira foto do quadro e analisa.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 PLANOS -->
+  <section id="planos" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 04</div>
+      <h2>Planos e <em>preços</em></h2>
+      <p class="section-lead">O Claude tem planos para todos os perfis — do casual ao intensivo. O Pro anual equivale a US$ 17/mês.</p>
+
+      <div class="plan-grid">
+        <div class="plan-card">
+          <p class="plan-name">Gratuito</p>
+          <p class="plan-price">$0 <span>para sempre</span></p>
+          <p class="plan-note">Sem cartão de crédito</p>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Acesso via web, iOS, Android e desktop</li>
+            <li><span class="check">✓</span> Modelos Sonnet e Haiku</li>
+            <li><span class="check">✓</span> Upload básico de arquivos e imagens</li>
+            <li><span class="check">✓</span> Projetos (com limite menor)</li>
+            <li><span class="check">✓</span> ~8–10 mensagens por janela de 5h</li>
+            <li><span class="cross">✗</span> Busca na web</li>
+            <li><span class="cross">✗</span> Geração de imagens</li>
+            <li><span class="cross">✗</span> Claude Code e Cowork</li>
+            <li><span class="cross">✗</span> Deep Research</li>
+          </ul>
+        </div>
+
+        <div class="plan-card featured">
+          <p class="plan-name">Pro ⭐</p>
+          <p class="plan-price">$17 <span>/ mês no anual</span></p>
+          <p class="plan-note">ou US$ 20/mês no mensal · US$ 200/ano</p>
+          <ul class="plan-features">
+            <li><span class="check">✓</span> Tudo do gratuito, mais:</li>
+            <li><span class="check">✓</span> Opus + Sonnet + Haiku (todos os modelos)</li>
+            <li><span class="check">✓</span> ~45 mensagens por janela de 5h (5× mais)</li>
+            <li><span class="check">✓</span> Busca na web em tempo real</li>
+            <li><span class="check">✓</span> Geração de imagens</li>
+            <li><span class="check">✓</span> Deep Research</li>
+            <li><span class="check">✓</span> Claude Code (terminal, web e desktop)</li>
+            <li><span class="check">✓</span> Cowork (macOS e Windows)</li>
+            <li><span class="check">✓</span> Conectores e integrações</li>
+            <li><span class="check">✓</span> Claude no Excel e PowerPoint</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="highlight-box" style="margin-top:20px;">
+        <div class="icon">💡</div>
+        <p>Existem ainda os planos <strong>Max ($100–$200/mês)</strong> para usuários muito intensivos, <strong>Team ($25–$30/pessoa/mês)</strong> para equipes e escolas, e <strong>Enterprise</strong> com preço personalizado para instituições grandes. O limite do Claude não é por dia — funciona por uma <strong>janela deslizante de 5 horas</strong>, o que significa que você pode usar várias rodadas por dia se espaçar o uso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 PRODUTOS -->
+  <section id="produtos" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 05</div>
+      <h2>Chat, Code <em>e Cowork</em></h2>
+      <p class="section-lead">Três produtos com propostas completamente diferentes — entender qual é qual evita muita confusão.</p>
+
+      <div class="product-cards">
+        <div class="product-card blue">
+          <span class="product-emoji">💬</span>
+          <h3>Claude Chat</h3>
+          <span class="product-for">Para todo mundo</span>
+          <ul>
+            <li>Conversas livres e projetos</li>
+            <li>Web, mobile e desktop</li>
+            <li>Upload de arquivos e imagens</li>
+            <li>Busca na web (plano pago)</li>
+            <li>Ideal para professores</li>
+          </ul>
+        </div>
+
+        <div class="product-card teal">
+          <span class="product-emoji">⌨️</span>
+          <h3>Claude Code</h3>
+          <span class="product-for">Para desenvolvedores</span>
+          <ul>
+            <li>Agente de código no terminal</li>
+            <li>Lê, edita e executa arquivos</li>
+            <li>Integra com Git e projetos reais</li>
+            <li>Age de forma autônoma</li>
+            <li>Exige plano Pro ou superior</li>
+          </ul>
+        </div>
+
+        <div class="product-card orange">
+          <span class="product-emoji">🖥️</span>
+          <h3>Cowork</h3>
+          <span class="product-for">Para não-desenvolvedores</span>
+          <ul>
+            <li>Automatiza tarefas no computador</li>
+            <li>Organiza arquivos e formulários</li>
+            <li>Clica, preenche e organiza</li>
+            <li>Sem precisar programar</li>
+            <li>Disponível no plano Pro+</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 CONECTORES -->
+  <section id="conectores" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 06</div>
+      <h2>O que são <em>Conectores?</em></h2>
+      <p class="section-lead">Integrações que permitem ao Claude acessar seus apps e serviços externos — direto na conversa, sem copiar e colar.</p>
+
+      <p class="prose">Com conectores, você pode dizer ao Claude: <strong>"Procure no meu Drive os planos de aula do terceiro trimestre e me faça um resumo"</strong> — e ele vai lá, encontra e traz os documentos automaticamente. Os conectores são configurados em <strong>Configurações → Conectores</strong> e a maioria exige autorização uma única vez.</p>
+
+      <div class="connector-grid">
+        <div class="connector-pill"><span class="dot" style="background:#4285F4"></span>Google Drive</div>
+        <div class="connector-pill"><span class="dot" style="background:#EA4335"></span>Gmail</div>
+        <div class="connector-pill"><span class="dot" style="background:#34A853"></span>Google Docs</div>
+        <div class="connector-pill"><span class="dot" style="background:#0EA5E9"></span>Google Calendar</div>
+        <div class="connector-pill"><span class="dot" style="background:#4A154B"></span>Slack</div>
+        <div class="connector-pill"><span class="dot" style="background:#24292E"></span>GitHub</div>
+        <div class="connector-pill"><span class="dot" style="background:#0052CC"></span>Jira / Asana</div>
+        <div class="connector-pill"><span class="dot" style="background:#00C4CC"></span>Canva</div>
+        <div class="connector-pill"><span class="dot" style="background:#1DB954"></span>Spotify</div>
+        <div class="connector-pill"><span class="dot" style="background:#0078D4"></span>Microsoft Outlook</div>
+        <div class="connector-pill"><span class="dot" style="background:#217346"></span>Excel / Sheets</div>
+        <div class="connector-pill"><span class="dot" style="background:#D83B01"></span>PowerPoint</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 SKILLS -->
+  <section id="skills" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 07</div>
+      <h2>O que são <em>Skills?</em></h2>
+      <p class="section-lead">Skills são "especializações" que ensinam o Claude a executar tarefas complexas com precisão profissional — como criar arquivos de verdade.</p>
+
+      <p class="prose">Ao contrário de uma conversa comum, as Skills habilitam o Claude a produzir arquivos reais e executar fluxos completos. Elas podem ser padrão (disponíveis para todos) ou configuradas por quem administra um ambiente específico.</p>
+
+      <div class="cards-grid" style="margin-top:32px;">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">📝</div>
+          <h3>Documentos Word</h3>
+          <p>Gera arquivos .docx formatados profissionalmente, com estilos, títulos e tabelas.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">📊</div>
+          <h3>Apresentações PowerPoint</h3>
+          <p>Monta slides .pptx com design e conteúdo, prontos para apresentar.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">📈</div>
+          <h3>Planilhas Excel</h3>
+          <p>Produz .xlsx com dados, fórmulas e formatação estruturada.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(220,38,38,0.15)">📋</div>
+          <h3>PDFs</h3>
+          <p>Lê, extrai dados, preenche formulários e cria novos documentos em PDF.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(15,23,42,0.5)">📉</div>
+          <h3>Análise de dados</h3>
+          <p>Explora, visualiza e interpreta conjuntos de dados com gráficos e relatórios.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(139,92,246,0.15)">🎨</div>
+          <h3>Design visual</h3>
+          <p>Cria artes, posters e banners com boa aparência visual direto no chat.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 DESIGN -->
+  <section id="design" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 08</div>
+      <h2>Claude <em>Design</em></h2>
+      <p class="section-lead">A integração nativa com o Canva que transforma texto em design profissional — sem precisar saber usar o Canva.</p>
+
+      <p class="prose">Você descreve o que quer, o Claude cria o design e você pode editá-lo no Canva com um clique. É uma das funcionalidades mais práticas para professores que precisam de materiais visuais mas não têm tempo ou habilidade para design.</p>
+
+      <div class="cards-grid" style="margin-top:32px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <div class="card"><div class="card-icon" style="background:rgba(249,115,22,0.15)">📱</div><h3>Posts e banners</h3><p>Para redes sociais e comunicados escolares.</p></div>
+        <div class="card"><div class="card-icon" style="background:rgba(29,78,216,0.15)">📽️</div><h3>Apresentações</h3><p>Slides completos com design, conteúdo e tema.</p></div>
+        <div class="card"><div class="card-icon" style="background:rgba(13,148,136,0.15)">📰</div><h3>Newsletters</h3><p>Informativos formatados para famílias e equipe.</p></div>
+        <div class="card"><div class="card-icon" style="background:rgba(139,92,246,0.15)">🏅</div><h3>Certificados</h3><p>Diplomas e certificados personalizados para alunos.</p></div>
+        <div class="card"><div class="card-icon" style="background:rgba(249,115,22,0.15)">📣</div><h3>Flyers e avisos</h3><p>Material de divulgação para eventos escolares.</p></div>
+        <div class="card"><div class="card-icon" style="background:rgba(29,78,216,0.15)">📊</div><h3>Infográficos</h3><p>Conteúdo didático em formato visual para aulas.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 PLATAFORMAS -->
+  <section id="plataformas" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 09</div>
+      <h2>Web, Desktop <em>e Mobile</em></h2>
+      <p class="section-lead">O Claude roda em três plataformas, cada uma com vantagens específicas para diferentes situações do dia a dia.</p>
+
+      <div class="platform-cards">
+        <div class="platform-card">
+          <div class="platform-header">
+            <div class="platform-emoji">🌐</div>
+            <div>
+              <h3>Web</h3>
+              <span class="platform-badge green">Mais completo</span>
+            </div>
+          </div>
+          <div class="platform-body">
+            <ul>
+              <li>Qualquer navegador, qualquer computador</li>
+              <li>Todas as funções disponíveis</li>
+              <li>Projetos, arquivos e histórico</li>
+              <li>Conectores e integrações</li>
+              <li>Ideal para trabalho concentrado</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-header">
+            <div class="platform-emoji">🖥️</div>
+            <div>
+              <h3>Desktop</h3>
+              <span class="platform-badge blue">Mais integrado</span>
+            </div>
+          </div>
+          <div class="platform-body">
+            <ul>
+              <li>App nativo para Mac e Windows</li>
+              <li>Atalho global — acessa de qualquer app</li>
+              <li>Cowork: automação de arquivos</li>
+              <li>Funciona sem abrir o browser</li>
+              <li>Levemente mais rápido</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-header">
+            <div class="platform-emoji">📱</div>
+            <div>
+              <h3>Mobile</h3>
+              <span class="platform-badge orange">Mais prático</span>
+            </div>
+          </div>
+          <div class="platform-body">
+            <ul>
+              <li>iOS e Android</li>
+              <li>Entrada por voz — fale em vez de digitar</li>
+              <li>Tire foto e envie para análise</li>
+              <li>Acesso em qualquer hora e lugar</li>
+              <li>Sincroniza com a conta web</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 PROJETOS -->
+  <section id="projetos" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 10</div>
+      <h2>Projetos <em>e Memória</em></h2>
+      <p class="section-lead">A função mais importante para quem usa o Claude com regularidade no trabalho.</p>
+
+      <p class="prose">Dentro do Claude, você pode criar <strong>Projetos</strong> — espaços organizados que têm memória persistente. Cada Projeto tem instruções personalizadas, arquivos de referência e lembra o contexto das conversas anteriores.</p>
+
+      <div class="cards-grid" style="margin-top:32px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(13,148,136,0.15)">📌</div>
+          <h3>Instruções fixas</h3>
+          <p>Diga ao Claude quem você é, seu contexto e preferências. Ele usa isso em todas as conversas do projeto.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(29,78,216,0.15)">📁</div>
+          <h3>Arquivos de referência</h3>
+          <p>Carregue o currículo da disciplina, o planejamento anual, a lista de alunos. O Claude usa como base sempre.</p>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(249,115,22,0.15)">🧠</div>
+          <h3>Memória entre conversas</h3>
+          <p>Diferente de conversas comuns, o Claude lembra do que foi discutido em sessões anteriores dentro do projeto.</p>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <div class="icon">🎓</div>
+        <p>Crie um <strong>Projeto para cada turma</strong>: coloque o perfil dos alunos, o currículo e seu estilo de ensino. Com o tempo, o Claude vai entender seu contexto sem que você precise repetir as mesmas informações. <strong>Quanto mais contexto você der, mais útil ele fica.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PROFESSORES -->
+  <section id="professores" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 11</div>
+      <h2>Dicas para <em>professores</em></h2>
+      <p class="section-lead">Exemplos reais de como usar o Claude no dia a dia da educação — do planejamento à comunicação com famílias.</p>
+
+      <div class="tips-grid">
+        <div class="tip-card t1">
+          <h3>📋 Planejamento de aulas</h3>
+          <p>Peça planos de aula, sequências didáticas e sugestões de atividades adaptadas para sua turma e faixa etária.</p>
+          <div class="tip-example">"Crie um plano de aula de 50 minutos sobre frações para alunos do 6º ano, com atividade prática."</div>
+        </div>
+
+        <div class="tip-card t2">
+          <h3>📝 Criação de materiais</h3>
+          <p>Gere exercícios, listas, provas, rubricas e slides em minutos, com o nível de dificuldade que você precisar.</p>
+          <div class="tip-example">"Crie uma prova com 8 questões objetivas sobre a Revolução Industrial, nível ensino médio."</div>
+        </div>
+
+        <div class="tip-card t3">
+          <h3>✏️ Feedback em redações</h3>
+          <p>Cole redações de alunos e peça sugestões de feedback construtivo e personalizado para cada um.</p>
+          <div class="tip-example">"Leia esta redação e me dê feedback focado em coesão e argumentação, em tom gentil."</div>
+        </div>
+
+        <div class="tip-card t4">
+          <h3>🔬 Pesquisa e atualização</h3>
+          <p>Peça resumos de artigos, novidades da área e adaptações de conteúdo para o seu nível de ensino.</p>
+          <div class="tip-example">"Resuma as principais metodologias ativas e sugira como aplicar em aulas de ciências."</div>
+        </div>
+
+        <div class="tip-card t5">
+          <h3>📧 Comunicação com famílias</h3>
+          <p>Escreva comunicados, relatórios individuais e e-mails profissionais com rapidez e tom adequado.</p>
+          <div class="tip-example">"Escreva um comunicado formal para as famílias sobre o calendário de recuperação."</div>
+        </div>
+
+        <div class="tip-card t6">
+          <h3>♿ Inclusão e adaptação</h3>
+          <p>Adapte textos para diferentes níveis, necessidades especiais, TDAH, dislexia ou faixas etárias distintas.</p>
+          <div class="tip-example">"Adapte estas instruções para um aluno com TDAH, priorizando clareza e brevidade."</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 EXEMPLOS -->
+  <section id="exemplos" class="section">
+    <div class="section-inner fade-in">
+      <div class="section-tag">Módulo 12</div>
+      <h2>Exemplos <em>de uso real</em></h2>
+      <p class="section-lead">Prompts prontos para copiar, adaptar e usar agora mesmo. Clique em cada um para ver o contexto completo e dicas de uso.</p>
+
+      <div class="examples-cats">
+        <button class="cat-btn active" data-cat="planejamento">📋 Planejamento</button>
+        <button class="cat-btn" data-cat="materiais">📝 Materiais didáticos</button>
+        <button class="cat-btn" data-cat="avaliacao">📊 Avaliação</button>
+        <button class="cat-btn" data-cat="comunicacao">📧 Comunicação</button>
+        <button class="cat-btn" data-cat="inclusao">♿ Inclusão</button>
+        <button class="cat-btn" data-cat="gestao">🗂️ Gestão</button>
+        <button class="cat-btn" data-cat="criativo">🎨 Criativo</button>
+      </div>
+
+      <!-- PLANEJAMENTO -->
+      <div class="examples-group active" id="cat-planejamento">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📅</span>
+              <span class="example-title">Plano de aula completo</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Ideal para montar uma aula do zero com estrutura pedagógica clara. Quanto mais detalhe você der (turma, conteúdo, tempo, recursos disponíveis), melhor o resultado.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um plano de aula completo sobre [tema] para alunos do [série/ano], com duração de [X] minutos. Inclua: objetivo de aprendizagem, motivação inicial, desenvolvimento com atividade prática, fechamento e avaliação formativa. Tenho disponível: [quadro/projetor/tablets/etc].
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Crie um Projeto no Claude com o currículo da disciplina e o perfil da turma. Assim, todo plano de aula já vai vir ajustado ao seu contexto sem precisar repetir essas informações.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🗓️</span>
+              <span class="example-title">Sequência didática de múltiplas aulas</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para planejar uma unidade temática com progressão de aprendizagem entre as aulas, conectando conteúdos e habilidades.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie uma sequência didática de [X] aulas sobre [tema/unidade], para alunos do [série/ano]. A sequência deve ter progressão de complexidade, conectar os conteúdos entre si e culminar em uma atividade avaliativa final. Disciplina: [nome].
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🎯</span>
+              <span class="example-title">Objetivos de aprendizagem no formato BNCC</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para alinhar seu planejamento às competências e habilidades da Base Nacional Comum Curricular.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Quais habilidades da BNCC estão relacionadas ao tema [tema] para o [ano/série]? Liste os códigos e explique como cada um pode ser trabalhado nessa aula. Disciplina: [nome].
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Você pode colar o texto de uma habilidade da BNCC e pedir ao Claude para sugerir atividades práticas que a desenvolvam.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🧩</span>
+              <span class="example-title">Atividades com metodologias ativas</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para transformar aulas expositivas em experiências mais engajantes usando metodologias como PBL, sala de aula invertida, rotação por estações etc.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Sugira como aplicar a metodologia [aprendizagem baseada em problemas / sala de aula invertida / gamificação / rotação por estações] para ensinar [tema] a alunos do [série/ano]. Dê exemplos práticos e o passo a passo para implementar em uma aula de [X] minutos.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MATERIAIS -->
+      <div class="examples-group" id="cat-materiais">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📋</span>
+              <span class="example-title">Lista de exercícios em níveis de dificuldade</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para atender diferentes ritmos de aprendizagem na mesma turma, com atividades diferenciadas pelo nível de complexidade.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie uma lista de 12 exercícios sobre [tema] para alunos do [série/ano]. Divida em três grupos: 4 exercícios básicos (memorização e reconhecimento), 4 intermediários (aplicação e análise) e 4 avançados (síntese e avaliação crítica). Inclua gabarito comentado ao final.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📖</span>
+              <span class="example-title">Texto didático sobre um tema</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para criar material de leitura adaptado ao vocabulário e ao nível cognitivo da sua turma, sem depender de livros didáticos.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Escreva um texto explicativo sobre [tema] com linguagem acessível para alunos do [série/ano]. O texto deve ter cerca de [X] palavras, incluir exemplos do cotidiano dos alunos, e terminar com 3 questões de interpretação e reflexão.
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Após gerar o texto, peça ao Claude para criar também um glossário com os termos mais difíceis para distribuir junto ao material.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🎲</span>
+              <span class="example-title">Jogo ou dinâmica para a turma</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para engajar a turma com atividades lúdicas que reforçam o conteúdo de forma divertida, sem precisar de materiais caros.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um jogo/dinâmica para revisar [tema] com uma turma de [X] alunos do [série/ano]. O jogo deve durar cerca de [X] minutos, usar apenas [materiais disponíveis: cartolina, post-its, celular, etc.] e incluir regras claras, objetivo pedagógico e como avaliar a participação.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🖼️</span>
+              <span class="example-title">Roteiro de análise de imagem ou fonte histórica</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para trabalhar leitura e interpretação de imagens, charges, mapas, gráficos ou documentos históricos de forma estruturada.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um roteiro de análise de [imagem / charge / mapa / fonte histórica] sobre [tema] para alunos do [série/ano]. O roteiro deve guiar o aluno desde a observação inicial até a interpretação crítica, com perguntas progressivas. Disciplina: [nome].
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- AVALIAÇÃO -->
+      <div class="examples-group" id="cat-avaliacao">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📝</span>
+              <span class="example-title">Prova completa com gabarito</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para criar avaliações equilibradas que testem diferentes níveis cognitivos, com gabarito e critérios de correção prontos.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie uma prova sobre [tema] para alunos do [série/ano] com: 5 questões de múltipla escolha (valor 1,0 cada), 2 questões de verdadeiro ou falso com justificativa (valor 1,0 cada) e 1 questão dissertativa (valor 2,0). Total: 10 pontos. Inclua gabarito comentado e critérios de correção para a dissertativa.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">✏️</span>
+              <span class="example-title">Feedback em redações e textos</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Cole o texto do aluno e receba sugestões de feedback pedagógico construtivo, economizando horas de correção sem perder a qualidade.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                A seguir está uma redação de um aluno do [série/ano]. Analise e me dê sugestões de feedback considerando: [coesão / coerência / argumentação / gramática / estrutura]. Use tom encorajador, aponte 2 pontos positivos e 3 pontos a melhorar com orientações práticas. Não reescreva o texto do aluno. [COLE A REDAÇÃO AQUI]
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Você pode pedir ao Claude para gerar um modelo de rubrica antes, e depois usar esse mesmo modelo para avaliar todas as redações da turma com consistência.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📊</span>
+              <span class="example-title">Rubrica de avaliação</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para criar critérios claros e transparentes de avaliação, que os próprios alunos possam usar para autoavaliar seu trabalho.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie uma rubrica de avaliação para [tipo de atividade: trabalho em grupo / apresentação oral / projeto / redação] sobre [tema] para alunos do [série/ano]. Inclua 4 critérios de avaliação, com 4 níveis de desempenho cada (insuficiente, básico, satisfatório, excelente). Valor total: 10 pontos.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📈</span>
+              <span class="example-title">Relatório de desempenho individual</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para escrever relatórios descritivos de alunos com base nas notas e observações que você tem, sem partir do zero.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Escreva um relatório de desempenho escolar para o aluno [nome fictício], do [série/ano], com base nestas informações: [descreva o desempenho, comportamento, pontos fortes e dificuldades]. O relatório deve ser formal, em terceira pessoa, com tom construtivo e cerca de [X] linhas. Destaque competências socioemocionais também.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- COMUNICAÇÃO -->
+      <div class="examples-group" id="cat-comunicacao">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📨</span>
+              <span class="example-title">Comunicado para famílias</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para escrever comunicados claros, profissionais e acessíveis que as famílias realmente vão ler e entender.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Escreva um comunicado para as famílias dos alunos do [série/ano] informando sobre [assunto: reunião / evento / atividade / calendário de provas]. Tom: formal mas acolhedor. Inclua: data, local, o que precisa trazer/fazer e contato para dúvidas. Escola: [nome].
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🤝</span>
+              <span class="example-title">E-mail para reunião difícil com família</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para situações delicadas — comunicar dificuldades de aprendizagem, comportamento ou reprovação — com cuidado e empatia.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Escreva um e-mail convocando a família de um aluno para uma reunião sobre [dificuldades de aprendizagem / comportamento / frequência]. O tom deve ser empático, não alarmista e focado em construir uma parceria. Não dê detalhes do problema no e-mail, apenas convoque para uma conversa.
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Depois de gerar o e-mail, você pode pedir ao Claude para simular possíveis reações da família e ajudá-lo a se preparar para a conversa.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📣</span>
+              <span class="example-title">Post para grupo do WhatsApp da turma</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para comunicados rápidos no WhatsApp que sejam claros, concisos e sem margem para dúvidas.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Escreva uma mensagem curta e objetiva para o grupo do WhatsApp da turma do [série/ano] informando: [conteúdo da mensagem]. Tom amigável mas profissional. Máximo 5 linhas. Termine com um emoji adequado.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🗣️</span>
+              <span class="example-title">Preparar fala para reunião pedagógica</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para estruturar sua fala em conselhos de classe, reuniões de pais ou apresentações para a direção de forma clara e convincente.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Me ajude a preparar uma fala de [X] minutos para [conselho de classe / reunião de pais / apresentação para a direção] sobre [tema/situação]. Quero abordar: [pontos que deseja mencionar]. Tom: [profissional / colaborativo / assertivo]. Organize em introdução, desenvolvimento e encerramento.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- INCLUSÃO -->
+      <div class="examples-group" id="cat-inclusao">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🧠</span>
+              <span class="example-title">Adaptar material para aluno com TDAH</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para transformar atividades longas em versões que respeitam o perfil atencional de alunos com TDAH, mantendo o mesmo conteúdo.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Adapte a atividade abaixo para um aluno com TDAH do [série/ano]. Quebre em etapas menores, use linguagem direta, evite parágrafos longos, destaque as palavras-chave e adicione um checklist de tarefas. Mantenha o conteúdo e o objetivo pedagógico. [COLE A ATIVIDADE AQUI]
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📚</span>
+              <span class="example-title">Simplificar texto para diferentes níveis</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para diferenciar o mesmo conteúdo para alunos com diferentes ritmos, sem precisar criar materiais completamente distintos.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Reescreva o texto abaixo em três versões: uma para alunos com dificuldades de leitura (linguagem muito simples, frases curtas), uma para o nível médio da turma e uma versão enriquecida para alunos avançados (com vocabulário mais sofisticado e aprofundamento). [COLE O TEXTO AQUI]
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Você pode tirar foto de um texto de livro didático e enviar a imagem direto para o Claude pedindo essa adaptação.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🌍</span>
+              <span class="example-title">Material para aluno com pouco domínio do português</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para apoiar alunos imigrantes, indígenas ou com dificuldades severas de leitura, criando materiais mais acessíveis.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Adapte a atividade abaixo para um aluno com pouco domínio do português. Use: frases curtas e simples, palavras do vocabulário básico, apoio visual descrito em texto (ex: "imagine um desenho de..."), e evite termos abstratos. Mantenha o objetivo de aprendizagem. [COLE A ATIVIDADE AQUI]
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📋</span>
+              <span class="example-title">Plano de AEE / apoio individual</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para estruturar um plano de atendimento educacional especializado ou de acompanhamento individualizado para alunos com necessidades específicas.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um plano de apoio educacional individualizado para um aluno do [série/ano] com [diagnóstico/dificuldade específica]. O plano deve incluir: perfil do aluno, objetivos de curto e médio prazo, estratégias pedagógicas, adaptações avaliativas e indicadores de progresso.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GESTÃO -->
+      <div class="examples-group" id="cat-gestao">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🗂️</span>
+              <span class="example-title">Organizar o planejamento anual</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para distribuir os conteúdos do currículo ao longo do ano de forma equilibrada, considerando feriados, eventos e o ritmo de aprendizagem.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Me ajude a organizar o planejamento anual de [disciplina] para o [série/ano]. Os conteúdos obrigatórios são: [liste aqui]. O ano letivo tem [X] semanas e [X] aulas por semana. Considere bimestres/trimestres de [X] semanas. Sugira a distribuição dos conteúdos e destaque quais são mais complexos e merecem mais tempo.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">⏱️</span>
+              <span class="example-title">Plano de recuperação / reforço</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para estruturar intervenções pedagógicas para alunos que não atingiram os objetivos de aprendizagem no período regular.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um plano de recuperação paralela para alunos do [série/ano] que não atingiram os objetivos em [conteúdo/bimestre]. O plano deve ter duração de [X] semanas, [X] aulas por semana, com atividades progressivas e estratégias diferentes das usadas na aula regular. Foque nos pré-requisitos fundamentais.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📊</span>
+              <span class="example-title">Analisar notas e identificar padrões</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Cole uma tabela de notas da turma e peça ao Claude para identificar padrões, alunos em risco e sugestões de intervenção.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Abaixo estão as notas da minha turma do [série/ano] nas últimas [X] avaliações. Analise os dados e me diga: quais alunos estão em situação de risco? Existe algum padrão nas dificuldades? Quais conteúdos tiveram pior desempenho geral? Sugira ações pedagógicas. [COLE A TABELA AQUI]
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Você pode enviar a planilha diretamente como arquivo. O Claude lê .xlsx e .csv sem precisar copiar os dados manualmente.</div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🔍</span>
+              <span class="example-title">Pesquisar novidade pedagógica</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para se atualizar sobre metodologias, pesquisas e tendências da educação sem precisar ler dezenas de artigos.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Pesquise as evidências mais recentes sobre [metodologia / tema pedagógico] e me apresente: o que dizem as pesquisas, quais são as limitações, e como posso aplicar de forma prática em aulas de [disciplina] para alunos do [série/ano]. Cite as fontes principais.
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Esse prompt funciona melhor com a busca na web ativada (plano Pro) ou com o Deep Research para resultados mais aprofundados.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- CRIATIVO -->
+      <div class="examples-group" id="cat-criativo">
+        <div class="example-list">
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🎨</span>
+              <span class="example-title">Criar material visual com o Canva</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Com o conector do Canva ativado, você pode pedir ao Claude para criar cartazes, apresentações e materiais visuais direto no chat.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um poster educativo sobre [tema] para alunos do [série/ano]. O poster deve ter: título chamativo, 4 informações principais em formato de lista visual, uma imagem ilustrativa e cores que remetam a [natureza / ciência / história / etc.]. Formato: A3 vertical.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🎭</span>
+              <span class="example-title">Roteiro de teatro ou encenação</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para criar peças teatrais, dramatizações ou encenações que tornem conteúdos históricos, literários ou científicos mais vivos.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie um roteiro de teatro curto (10–15 minutos) sobre [tema / evento histórico / obra literária] para ser encenado por alunos do [série/ano]. O roteiro deve ter [X] personagens com falas equilibradas, linguagem acessível para a faixa etária, e transmitir claramente [conceito/mensagem pedagógica].
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">🎵</span>
+              <span class="example-title">Paródia ou música para memorizar conteúdo</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">Para criar recursos mnemônicos musicais que ajudam alunos a memorizar regras, fórmulas, datas ou conceitos de forma lúdica.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                Crie uma paródia baseada na música [nome da música conhecida pelos alunos] que ensine [conteúdo: tabuada / regras de acentuação / fórmulas de área / etc.] de forma memorável para alunos do [série/ano]. A letra deve ser ritmada, fácil de cantar e pedagogicamente correta.
+                <button class="copy-btn">copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="example-item">
+            <div class="example-header">
+              <span class="example-emoji">📸</span>
+              <span class="example-title">Analisar imagem ou foto tirada em aula</span>
+              <span class="example-chevron">▼</span>
+            </div>
+            <div class="example-body">
+              <p class="example-context">No celular, tire foto do quadro, de um experimento, de um mapa ou de qualquer coisa e peça ao Claude para trabalhar com aquela imagem.</p>
+              <div class="example-prompt-label">Prompt para copiar</div>
+              <div class="example-prompt">
+                [Envie a foto] Esta é uma foto de [descreva: experimento / mapa / obra de arte / exercício de aluno]. Analise o que aparece e me dê: uma explicação do que está sendo mostrado, possíveis perguntas para explorar com os alunos e conexões com o currículo do [série/ano] de [disciplina].
+                <button class="copy-btn">copiar</button>
+              </div>
+              <div class="example-tip"><strong>Dica:</strong> Você pode tirar foto de uma página do livro didático e pedir ao Claude para criar atividades complementares baseadas naquele conteúdo específico.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner fade-in">
+      <h3>Pronto para começar?</h3>
+      <p>Acesse claude.ai, crie sua conta gratuita e experimente. Quando quiser mais, o Pro anual equivale a <strong style="color:var(--teal2)">US$ 17/mês</strong>.</p>
+      <a href="https://claude.ai" target="_blank" class="footer-btn">
+        Acessar claude.ai
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="footer-copy">Guia preparado para educadores · Anthropic Claude 2026</p>
+    </div>
+  </footer>
+
+</main>
+
+<script>
+  // ── Progress bar
+  const progress = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    progress.style.width = pct + '%';
+  });
+
+  // ── Active nav highlight
+  const sections = document.querySelectorAll('section[id], .hero[id]');
+  const navLinks = document.querySelectorAll('.nav-item a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.classList.remove('active');
+          if (a.getAttribute('href') === '#' + entry.target.id) {
+            a.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.35 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // ── Fade in on scroll
+  const fadeEls = document.querySelectorAll('.fade-in');
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  fadeEls.forEach(el => fadeObserver.observe(el));
+
+  // ── Mobile hamburger
+  const hamburger = document.getElementById('hamburger');
+  const sidenav = document.getElementById('sidenav');
+  const overlay = document.getElementById('overlay');
+
+  hamburger.addEventListener('click', () => {
+    sidenav.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+
+  overlay.addEventListener('click', () => {
+    sidenav.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  // ── Examples: category tabs
+  document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.examples-group').forEach(g => g.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('cat-' + btn.dataset.cat).classList.add('active');
+    });
+  });
+
+  // ── Examples: accordion
+  document.querySelectorAll('.example-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const item = header.closest('.example-item');
+      const isOpen = item.classList.contains('open');
+      // close siblings in same group
+      header.closest('.example-list').querySelectorAll('.example-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+
+  // ── Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const text = btn.closest('.example-prompt').textContent.replace('copiar','').replace('copiado!','').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copiado!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'copiar'; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
+
+  // Close sidebar on nav click (mobile)
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      sidenav.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  });
+</script>
+</body>
+</html>
